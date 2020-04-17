@@ -1,0 +1,13 @@
+<launch>
+
+  <!-- Including robot_state.launch in order to define the model and start robot_state_publisher -->
+  <include file="$(find ackrm_robot)/launch/robot_state.launch" />
+
+  <!-- Setting name and path of RVIZ config file -->
+  <arg name="rvizconfig" default="$(find ackrm_robot)/rviz/urdf.rviz" />
+
+  <!-- Enable GUI to move joints in rviz -->
+  <node pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" name="joint_state_publisher_gui" />
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+</launch>

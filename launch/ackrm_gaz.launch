@@ -1,0 +1,32 @@
+<launch>
+
+    <!-- Including robot_state.launch in order to define the model and start robot_state_publisher -->
+    <include file="$(find ackrm_robot)/launch/robot_state.launch" />
+
+    <!-- Starting a Gazebo empty world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="debug" value="false" />
+        <arg name="gui" value="true" />
+        <arg name="paused" value="false" />
+        <arg name="use_sim_time" value="true" />
+        <arg name="headless" value="false" />
+    </include>
+
+    <!-- Spawn the robot in gazebo -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" 
+        respawn="false" output="screen"
+        args="-z 1.0 -urdf -model ackrm -param robot_description" />
+
+    <!-- Loading controllers configuration yaml -->
+    <rosparam command="load" 
+        file="$(find ackrm_robot)/config/ackrm_control.yaml" />
+    
+    <!-- Starting the controller manager node -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" 
+        respawn="false" output="screen" ns="ackrm" 
+        args="joint_state_ctrl
+              wheels_vel_ctrl
+              l_steer_ctrl
+              r_steer_ctrl" />
+
+</launch>

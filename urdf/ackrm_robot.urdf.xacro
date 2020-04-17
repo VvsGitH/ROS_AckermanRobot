@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<robot name="ackrm_robot" 
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!--MATERIALS-->
+  <material name="white">
+    <color rgba="0.7 0.7 0.7 1" />
+  </material>
+
+  <!-- XACRO PROPERTIES -->
+  <xacro:property name="base_length" value="0.8" />
+  <xacro:property name="base_width" value="0.4" />
+  <xacro:property name="base_heigth" value="0.17" />
+  <xacro:property name="base_mass" value="${base_length*base_width*base_heigth*500}" />
+  <xacro:property name="wheel_radius" value="0.17" />
+  <xacro:property name="wheel_heigth" value="0.05" />
+  <xacro:property name="wheel_mass" value="${pi*wheel_radius*wheel_radius*wheel_heigth*500}" />
+  <xacro:property name="pivot_radius" value="${wheel_heigth/2-0.01}" />
+  <xacro:property name="pivot_heigth" value="${1.4*wheel_radius}" />
+  <xacro:property name="pivot_mass" value="${pi*pivot_radius*pivot_radius*pivot_heigth*500}" />
+
+  <!-- XACRO LIBRARIES -->
+  <xacro:include filename="$(find ackrm_robot)/urdf/inertia.xacro" />
+  <xacro:include filename="$(find ackrm_robot)/urdf/cylinder_wheel.xacro" />
+  <xacro:include filename="$(find ackrm_robot)/urdf/cylinder_pivot.xacro" />
+
+  <!-- BASE LINK DEFINITION -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="${base_length} ${base_width} ${base_heigth}" />
+      </geometry>
+      <material name="white" />
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${base_length} ${base_width} ${base_heigth}" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="${base_mass}" />
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <xacro:box_inertia m="${base_mass}" l="${base_length}" w="${base_width}" h="${base_heigth}"/>
+    </inertial>
+  </link>
+
+  <!-- STEERING PIVOTS MACRO CALL -->
+  <xacro:cylinder_pivot name="right" 
+    pr="${pivot_radius}" 
+    ph="${pivot_heigth}" 
+    pm="${pivot_mass}" 
+    xpos="0.35" 
+    ypos="-0.35" />
+  <xacro:cylinder_pivot name="left" 
+    pr="${pivot_radius}" 
+    ph="${pivot_heigth}" 
+    pm="${pivot_mass}" 
+    xpos="0.35" 
+    ypos="0.35" />
+
+  <!-- WHEELS MACRO CALL -->
+  <xacro:cylinder_wheel name="back_right" 
+    wr="${wheel_radius}" 
+    wh="${wheel_heigth}" 
+    wm="${wheel_mass}" 
+    parent="base_link" 
+    xpos="-0.35" 
+    ypos="-0.35" />
+  <xacro:cylinder_wheel name="back_left" 
+    wr="${wheel_radius}" 
+    wh="${wheel_heigth}" 
+    wm="${wheel_mass}" 
+    parent="base_link" 
+    xpos="-0.35" 
+    ypos="0.35" />
+  <xacro:cylinder_wheel name="front_right" 
+    wr="${wheel_radius}" 
+    wh="${wheel_heigth}" 
+    wm="${wheel_mass}" 
+    parent="right_steer_pivot" 
+    xpos="0" 
+    ypos="0" />
+  <xacro:cylinder_wheel name="front_left" 
+    wr="${wheel_radius}" 
+    wh="${wheel_heigth}" 
+    wm="${wheel_mass}" 
+    parent="left_steer_pivot" 
+    xpos="0" 
+    ypos="0" />
+
+  <!-- Gazebo plugin for ROS Control -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/ackrm</robotNamespace>
+    </plugin>
+  </gazebo>
+
+</robot>
